@@ -4,6 +4,51 @@ import 'package:reservas_app/services/db_service.dart';
 class PropertyService {
   final DatabaseService _databaseService = DatabaseService();
 
+  /// Insere um novo registro de propriedade no banco de dados.
+  Future<int> insertProperty(Property property) async {
+    final db = await _databaseService.getDatabaseInstance();
+
+    final int id = await db.insert(
+      'property',
+      property.toMap(), // Dados da propriedade convertidos para Map
+    );
+
+    print('Propriedade inserida com sucesso com ID $id.');
+    return id;
+  }
+
+  /// Atualiza um registro de propriedade no banco de dados.
+  Future<void> updateProperty(Property property) async {
+    final db = await _databaseService.getDatabaseInstance();
+
+    if (property.id == null) {
+      throw ArgumentError(
+          'A propriedade precisa de um ID para ser atualizada.');
+    }
+
+    await db.update(
+      'property',
+      property.toMap(), // Dados da propriedade convertidos para Map
+      where: 'id = ?',
+      whereArgs: [property.id],
+    );
+
+    print('Propriedade com ID ${property.id} foi atualizada com sucesso.');
+  }
+
+  /// Deleta uma propriedade do banco de dados pelo ID.
+  Future<void> deletePropertyById(int propertyId) async {
+    final db = await _databaseService.getDatabaseInstance();
+
+    await db.delete(
+      'property',
+      where: 'id = ?',
+      whereArgs: [propertyId],
+    );
+
+    print('Propriedade com ID $propertyId foi deletada com sucesso.');
+  }
+
   /// Busca propriedades associadas a um determinado userId.
   Future<List<Property>> getPropertiesByUserId(int userId) async {
     final db = await _databaseService.getDatabaseInstance();

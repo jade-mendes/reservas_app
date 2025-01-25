@@ -39,23 +39,35 @@ class PropertyService {
   /// Deleta uma propriedade do banco de dados pelo ID.
   Future<void> deletePropertyById(int propertyId) async {
     final db = await _databaseService.getDatabaseInstance();
+    try {
+      // Deleta todos os registros da tabela images relacionadas à propriedade.
+      await db.delete(
+        'images',
+        where: 'property_id = ?',
+        whereArgs: [propertyId],
+      );
+      print(
+          'Images relacionados à propriedade com ID $propertyId foram deletados.');
 
-    // Deleta todos os registros da tabela booking relacionados à propriedade.
-    await db.delete(
-      'booking',
-      where: 'property_id = ?',
-      whereArgs: [propertyId],
-    );
-    print(
-        'Bookings relacionados à propriedade com ID $propertyId foram deletados.');
+      // Deleta todos os registros da tabela booking relacionados à propriedade.
+      await db.delete(
+        'booking',
+        where: 'property_id = ?',
+        whereArgs: [propertyId],
+      );
+      print(
+          'Bookings relacionados à propriedade com ID $propertyId foram deletados.');
 
-    await db.delete(
-      'property',
-      where: 'id = ?',
-      whereArgs: [propertyId],
-    );
+      await db.delete(
+        'property',
+        where: 'id = ?',
+        whereArgs: [propertyId],
+      );
 
-    print('Propriedade com ID $propertyId foi deletada com sucesso.');
+      print('Propriedade com ID $propertyId foi deletada com sucesso.');
+    } catch (e) {
+      print('Erro ao deletar propriedade: (e)');
+    }
   }
 
   /// Busca propriedades associadas a um determinado userId.

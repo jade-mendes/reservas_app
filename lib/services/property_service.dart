@@ -40,6 +40,15 @@ class PropertyService {
   Future<void> deletePropertyById(int propertyId) async {
     final db = await _databaseService.getDatabaseInstance();
 
+    // Deleta todos os registros da tabela booking relacionados à propriedade.
+    await db.delete(
+      'booking',
+      where: 'property_id = ?',
+      whereArgs: [propertyId],
+    );
+    print(
+        'Bookings relacionados à propriedade com ID $propertyId foram deletados.');
+
     await db.delete(
       'property',
       where: 'id = ?',

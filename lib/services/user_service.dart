@@ -24,4 +24,29 @@ class UserService {
       user.toMap(), // Mapeia o objeto User para um Map
     );
   }
+
+  // Função para autenticar um usuário com base no email e senha
+  Future<User?> authenticateUser(String email, String password) async {
+    final db = await _databaseService.getDatabaseInstance();
+
+    // Busca o usuário pelo email
+    final result = await db.query(
+      'user',
+      where: 'email = ?',
+      whereArgs: [email],
+    );
+
+    if (result.isEmpty) {
+      return null;
+    }
+
+    final user = User.fromMap(result.first);
+
+    // Verifica se a senha fornecida corresponde à senha armazenada no banco
+    if (user.password == password) {
+      return user;
+    } else {
+      return null;
+    }
+  }
 }

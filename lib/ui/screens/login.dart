@@ -52,24 +52,31 @@ class _LoginState extends State<Login> {
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
       ),
-      body: _isLoading
-          ? Center(
-              child:
-                  CircularProgressIndicator()) // Mostra um loader enquanto carrega os dados
-          : _booking.isEmpty
-              ? Center(child: Text("Nenhuma propriedade encontrada."))
-              : ListView.builder(
-                  itemCount: _booking.length,
-                  itemBuilder: (context, index) {
-                    final booking = _booking[index];
-                    return ListTile(
-                      title: Text(booking.propertyId.toString()),
-                      subtitle: Text(booking.totalDays.toString()),
-                      trailing:
-                          Text('R\$ ${booking.totalPrice.toStringAsFixed(2)}'),
-                    );
-                  },
-                ),
+      body: Padding(
+        padding: const EdgeInsets.all(100),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children:[
+            Text("Como deseja entrar?", style: TextStyle(fontSize: 18)),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(onPressed: (){}, child: Text("Locador")),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(onPressed: (){}, child: Text("Locatário")),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(onPressed: (){}, child: Text("Cadastre-se")),
+            ),
+          ]
+        )
+      )
     );
   }
 }

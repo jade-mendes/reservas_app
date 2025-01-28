@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:reservas_app/login.dart';
+import 'package:reservas_app/ui/screens/login.dart';
 import 'package:reservas_app/services/db_service.dart'; // Substitua pelo caminho correto
 
 Future<void> main() async {

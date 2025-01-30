@@ -14,7 +14,7 @@ Future<void> main() async {
         scaffoldBackgroundColor: Colors.white,
         primaryColor: Colors.indigo,
         textTheme: TextTheme(
-          bodyMedium: TextStyle(color: Colors.black),
+          bodyMedium: TextStyle(fontSize: 18,color: Colors.black),
         )
       ),
       debugShowCheckedModeBanner: false,

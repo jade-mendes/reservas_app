@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:reservas_app/models/booking.dart';
 import 'package:reservas_app/services/booking_service.dart';
+import 'package:reservas_app/ui/screens/sign_up.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -11,7 +12,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final BookingService _bookingService = BookingService();
+  /*  Mudar isso aqui de lugar, mas não sei pra onde */
+  /* final BookingService _bookingService = BookingService();
 
   // Lista para armazenar as bookings buscadas
   List<Booking> _booking = [];
@@ -36,20 +38,19 @@ class _LoginState extends State<Login> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Erro ao carregar bookings: $e');
       setState(() {
         _isLoading = false;
       });
     }
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Reservas App"),
-        backgroundColor: Colors.indigo,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Theme.of(context).scaffoldBackgroundColor,
         automaticallyImplyLeading: false,
       ),
       body: Padding(
@@ -58,7 +59,7 @@ class _LoginState extends State<Login> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children:[
-            Text("Como deseja entrar?", style: TextStyle(fontSize: 18)),
+            Text("Como deseja entrar?", style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
@@ -72,7 +73,9 @@ class _LoginState extends State<Login> {
             const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
-              child: TextButton(onPressed: (){}, child: Text("Cadastre-se")),
+              child: TextButton(onPressed: (){
+                Navigator.pushNamed(context, SignUp.route);
+              }, child: Text("Cadastre-se")),
             ),
           ]
         )

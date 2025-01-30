@@ -61,22 +61,19 @@ class _LoginState extends State<Login> {
           children:[
             Text("Como deseja entrar?", style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(onPressed: (){}, child: Text("Locador")),
-            ),
+            ElevatedButton(
+              onPressed: (){}, 
+              child: Text("Locador")),
             const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(onPressed: (){}, child: Text("Locatário")),
-            ),
+            ElevatedButton(
+              onPressed: (){}, 
+              child: Text("Locatário")),
             const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: TextButton(onPressed: (){
+            TextButton(
+              onPressed: (){
                 Navigator.pushNamed(context, SignUp.route);
-              }, child: Text("Cadastre-se")),
-            ),
+              },
+              child: Text("Cadastre-se")),
           ]
         )
       )

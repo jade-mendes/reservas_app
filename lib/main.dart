@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:reservas_app/ui/screens/login.dart';
-import 'package:reservas_app/services/db_service.dart'; // Substitua pelo caminho correto
+import 'package:reservas_app/services/db_service.dart';
+import 'package:reservas_app/ui/screens/sign_up.dart'; // Substitua pelo caminho correto
 
 Future<void> main() async {
   WidgetsFlutterBinding
@@ -9,10 +10,18 @@ Future<void> main() async {
   runApp(
     MaterialApp(
       title: "Reservas App",
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
+        primaryColor: Colors.indigo,
+        textTheme: TextTheme(
+          bodyMedium: TextStyle(color: Colors.black),
+        )
+      ),
       debugShowCheckedModeBanner: false,
       initialRoute: Login.route,
       routes: {
         Login.route: (context) => const Login(),
+        SignUp.route: (context) => const SignUp(),
       },
     ),
   );

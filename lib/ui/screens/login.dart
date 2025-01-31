@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reservas_app/models/user.dart';
 import 'package:reservas_app/ui/screens/sign_up.dart';
 import 'package:reservas_app/services/user_service.dart';
 
@@ -75,13 +76,32 @@ void _displayLoginDialog(String userType) {
         ),
         actions: [
           ElevatedButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              _emailController.clear();
+              _passwordController.clear();
+              Navigator.pop(context);
+            },
             child: Text("Cancelar"),
           ),
           ElevatedButton(
-            onPressed: () {
-              currentUser.authenticateUser(_emailController.text, _passwordController.text);
-              // TERMINAR ISSO
+            onPressed: () async {
+              User? user = await currentUser.authenticateUser(
+                _emailController.text,
+                _passwordController.text,
+              );
+
+              if (!mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(user == null ? 'Email ou senha incorretos' : 'Login realizado com sucesso!'),
+                  backgroundColor: user == null ? Colors.red : Colors.green,
+                ),
+              );
+
+              if (user != null) {
+                Navigator.pop(context);
+              }
             },
             child: Text("Entrar"),
           ),
@@ -90,7 +110,6 @@ void _displayLoginDialog(String userType) {
     },
   );
 }
-
 
   @override
   Widget build(BuildContext context) {

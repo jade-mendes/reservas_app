@@ -46,44 +46,51 @@ class _LoginState extends State<Login> {
     }
   } */
 
- void _displayLoginDialog(String userType) {
+void _displayLoginDialog(String userType) {
   // Mostra uma DialogBox para o usuário digitar email e senha em vez de criar uma tela nova só para isso
   UserService currentUser = UserService();
   showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Entrar como $userType'),
-          content: Column(
+    barrierDismissible: false,
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Entrar como $userType'),
+        content: SizedBox(
+          width: 300, 
+          child: Column(
+            mainAxisSize: MainAxisSize.min, 
             children: [
               TextField(
-                onChanged: (value) {},
                 controller: _emailController,
                 decoration: InputDecoration(hintText: "Email"),
               ),
               TextField(
-                onChanged: (value) {},
                 obscureText: true,
                 obscuringCharacter: '*',
                 controller: _passwordController,
                 decoration: InputDecoration(hintText: "Senha"),
-              )]
-            ),
-          actions: [
-            ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text("Cancelar")),
-            ElevatedButton(
-                onPressed: () {
-                  currentUser.authenticateUser(_emailController.text, _passwordController.text);
-                  // TERMINAR ISSO AQUI
-                },
-                child: Text("Entrar"))
-          ]
-        );
-      });
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancelar"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              currentUser.authenticateUser(_emailController.text, _passwordController.text);
+              // TERMINAR ISSO
+            },
+            child: Text("Entrar"),
+          ),
+        ],
+      );
+    },
+  );
 }
+
 
   @override
   Widget build(BuildContext context) {

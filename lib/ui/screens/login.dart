@@ -59,21 +59,21 @@ class _LoginState extends State<Login> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children:[
-            Text("Como deseja entrar?", style: Theme.of(context).textTheme.bodyMedium),
+            Text("O que você deseja?", style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: (){}, 
-              child: Text("Locador")),
+              child: Text("Alugar imóvel")),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: (){}, 
-              child: Text("Locatário")),
+              child: Text("Anunciar imóvel")),
             const SizedBox(height: 10),
             TextButton(
               onPressed: (){
                 Navigator.pushNamed(context, SignUp.route);
               },
-              child: Text("Cadastre-se")),
+              child: Text("Cadastrar-se")),
           ]
         )
       )

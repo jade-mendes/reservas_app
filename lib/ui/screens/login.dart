@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:reservas_app/models/booking.dart';
-import 'package:reservas_app/services/booking_service.dart';
 import 'package:reservas_app/ui/screens/sign_up.dart';
+import 'package:reservas_app/services/user_service.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
-  static String route = '/login';
+  static String route = '/login';  
 
   @override
   State<Login> createState() => _LoginState();
 }
 
 class _LoginState extends State<Login> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   /*  Mudar isso aqui de lugar, mas não sei pra onde */
   /* final BookingService _bookingService = BookingService();
 
@@ -44,6 +46,45 @@ class _LoginState extends State<Login> {
     }
   } */
 
+ void _displayLoginDialog(String userType) {
+  // Mostra uma DialogBox para o usuário digitar email e senha em vez de criar uma tela nova só para isso
+  UserService currentUser = UserService();
+  showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Entrar como $userType'),
+          content: Column(
+            children: [
+              TextField(
+                onChanged: (value) {},
+                controller: _emailController,
+                decoration: InputDecoration(hintText: "Email"),
+              ),
+              TextField(
+                onChanged: (value) {},
+                obscureText: true,
+                obscuringCharacter: '*',
+                controller: _passwordController,
+                decoration: InputDecoration(hintText: "Senha"),
+              )]
+            ),
+          actions: [
+            ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Cancelar")),
+            ElevatedButton(
+                onPressed: () {
+                  currentUser.authenticateUser(_emailController.text, _passwordController.text);
+                  // TERMINAR ISSO AQUI
+                },
+                child: Text("Entrar"))
+          ]
+        );
+      });
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,13 +103,13 @@ class _LoginState extends State<Login> {
             Text("O que você deseja?", style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: (){}, 
+              onPressed: (){ _displayLoginDialog('hóspede');}, 
               child: Text("Alugar imóvel")),
             const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: (){}, 
+              onPressed: (){_displayLoginDialog('anfitrião');}, 
               child: Text("Anunciar imóvel")),
-            const SizedBox(height: 10),
+            const SizedBox(height: 15),
             TextButton(
               onPressed: (){
                 Navigator.pushNamed(context, SignUp.route);

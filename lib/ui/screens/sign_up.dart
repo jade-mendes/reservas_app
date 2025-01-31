@@ -18,25 +18,25 @@ class _SignUpState extends State<SignUp>{
   final TextEditingController _passwordController = TextEditingController();
 
   void _registerUser() async {
-  final userService = UserService();
-  
-  final user = User(
-    name: _nameController.text,
-    email: _emailController.text,
-    password: _passwordController.text, 
-  );
+    final userService = UserService();
+    
+    final user = User(
+      name: _nameController.text,
+      email: _emailController.text,
+      password: _passwordController.text, 
+    );
 
-  try {
-    await userService.createUser(user);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Cadastro realizado com sucesso!')),
-    );
-    Navigator.pushReplacementNamed(context, Login.route);
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Erro: ${e.toString()}')),
-    );
-  }
+    try {
+      await userService.createUser(user);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Cadastro realizado com sucesso!')),
+      );
+      Navigator.pushReplacementNamed(context, Login.route);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro: ${e.toString()}')),
+      );
+    }
 }
 
   @override

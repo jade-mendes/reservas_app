@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:reservas_app/ui/screens/login.dart';
 import 'package:reservas_app/services/db_service.dart';
 import 'package:reservas_app/ui/screens/sign_up.dart'; // Substitua pelo caminho correto
+import 'package:reservas_app/ui/screens/list_locations/index.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding
@@ -18,8 +19,9 @@ Future<void> main() async {
         )
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: Login.route,
+      initialRoute: PropertyListScreen.route,
       routes: {
+        PropertyListScreen.route: (context) => const PropertyListScreen(),
         Login.route: (context) => const Login(),
         SignUp.route: (context) => const SignUp(),
       },

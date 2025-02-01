@@ -1,3 +1,6 @@
+import 'dart:ffi';
+
+import 'package:flutter/material.dart';
 import 'package:reservas_app/models/property.dart';
 import 'package:reservas_app/services/db_service.dart';
 
@@ -85,14 +88,22 @@ class PropertyService {
     return maps.map((map) => Property.fromMap(map)).toList();
   }
 
+  Future<List<Property>> getAllProperties() async {
+    final db = await _databaseService.getDatabaseInstance();
+    final List<Map<String, dynamic>> maps = await db.query('property');
+    return maps.map((map) => Property.fromMap(map)).toList();
+  }
+
   /// Filtra propriedades com base em checkinDate, checkoutDate, uf, localidade e bairro.
-  Future<List<Property>> filterProperties({
-    String? checkinDate,
-    String? checkoutDate,
-    String? uf,
-    String? localidade,
-    String? bairro,
-  }) async {
+  Future<List<Property>> filterProperties(Map<String, dynamic> filters) async {
+    final checkinDate = filters['checkinDate'] as DateTime?;
+    final checkoutDate = filters['checkoutDate'] as DateTime?;
+    final uf = filters['uf'] as String?;
+    final localidade = filters['localidade'] as String?;
+    final bairro = filters['bairro'] as String?;
+    final guests = filters['guests'] as int?;
+    final priceRange = filters['priceRange'] as RangeValues?;
+
     final db = await _databaseService.getDatabaseInstance();
 
     // Montar a query base e os argumentos dinamicamente
@@ -111,10 +122,10 @@ class PropertyService {
       queryBuffer.write("""
         AND (booking.checkin_date IS NULL OR (booking.checkin_date > ? AND booking.checkin_date > ?) ) OR (booking.checkout_date < ? AND booking.checkout_date < ?)
       """);
-      args.add(checkinDate);
-      args.add(checkoutDate);
-      args.add(checkinDate);
-      args.add(checkoutDate);
+      args.add("${checkinDate.toLocal()}".split(' ')[0]);
+      args.add("${checkoutDate.toLocal()}".split(' ')[0]);
+      args.add("${checkinDate.toLocal()}".split(' ')[0]);
+      args.add("${checkoutDate.toLocal()}".split(' ')[0]);
     }
 
     if (uf != null) {
@@ -130,6 +141,21 @@ class PropertyService {
     if (bairro != null) {
       queryBuffer.write(" AND address.bairro = ?");
       args.add(bairro);
+    }
+
+    if (guests != null) {
+      queryBuffer.write("""
+        AND property.max_guest >= ?
+      """);
+      args.add(guests);
+    }
+
+    if (priceRange != null) {
+      queryBuffer.write("""
+        AND (property.price <= ? AND property.price >= ?)
+      """);
+      args.add(priceRange.end);
+      args.add(priceRange.start);
     }
 
     // Executa a consulta com os filtros aplicados

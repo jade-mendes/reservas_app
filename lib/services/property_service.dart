@@ -66,7 +66,7 @@ class PropertyService {
 
       print('Propriedade com ID $propertyId foi deletada com sucesso.');
     } catch (e) {
-      print('Erro ao deletar propriedade: (e)');
+      print("Erro ao deletar propriedade: $e");
     }
   }
 

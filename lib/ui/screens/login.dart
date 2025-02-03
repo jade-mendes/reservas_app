@@ -68,7 +68,6 @@ class _LoginState extends State<Login> {
                     backgroundColor: user == null ? Colors.red : Colors.green,
                   ),
                 );
-                print("vai navegar");
                 if (user != null) {
                   Navigator.pop(context);
                 }

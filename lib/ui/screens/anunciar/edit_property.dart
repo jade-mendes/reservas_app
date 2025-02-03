@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:reservas_app/models/image.dart';
 import 'package:reservas_app/models/property.dart';
+import 'package:reservas_app/services/image_service.dart';
 import 'package:reservas_app/services/property_service.dart';
 
 class EditProperty extends StatefulWidget {
@@ -14,6 +16,9 @@ class _EditPropertyState extends State<EditProperty> {
   final _formKey = GlobalKey<FormState>();
   late Property _property;
   final PropertyService _propertyService = PropertyService();
+
+  List<ImageCustom> _images = [];
+  List<ImageCustom> _originalImages = [];
 
   // Controladores para os campos do formulário
   late TextEditingController _titleController;
@@ -46,6 +51,7 @@ class _EditPropertyState extends State<EditProperty> {
     final args = ModalRoute.of(context)!.settings.arguments;
     if (args != null && args is Property) {
       _property = args;
+      _loadImages();
 
       // Atualiza os controladores com os valores reais
       _titleController.text = _property.title;
@@ -63,25 +69,61 @@ class _EditPropertyState extends State<EditProperty> {
     }
   }
 
+  Future<void> _loadImages() async {
+    final images = await ImageService().getImagesByPropertyId(_property.id!);
+    if (mounted) {
+      setState(() {
+        _images = images;
+        _originalImages = List.from(images);
+      });
+    }
+  }
+
   Future<void> _saveProperty() async {
     if (_formKey.currentState!.validate()) {
-      final updatedProperty = Property(
-        id: _property.id,
-        userId: _property.userId,
-        addressId: _property.addressId,
-        title: _titleController.text,
-        description: _descriptionController.text,
-        number: int.parse(_numberController.text),
-        complement: _complementController.text.isEmpty
-            ? null
-            : _complementController.text,
-        price: double.parse(_priceController.text),
-        maxGuest: int.parse(_maxGuestController.text),
-        thumbnail: _thumbnailController.text,
-      );
+      for (var image in _images) {
+        if (image.path.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Preencha todas as URLs de imagem!')),
+          );
+          return;
+        }
+      }
 
       try {
+        final updatedProperty = Property(
+          id: _property.id,
+          userId: _property.userId,
+          addressId: _property.addressId,
+          title: _titleController.text,
+          description: _descriptionController.text,
+          number: int.parse(_numberController.text),
+          complement: _complementController.text.isEmpty
+              ? null
+              : _complementController.text,
+          price: double.parse(_priceController.text),
+          maxGuest: int.parse(_maxGuestController.text),
+          thumbnail: _thumbnailController.text,
+        );
+
         await _propertyService.updateProperty(updatedProperty);
+
+        final imageService = ImageService();
+        // Remove imagens excluídas
+        for (var original in _originalImages) {
+          if (!_images.any((img) => img.id == original.id)) {
+            await imageService.deleteImage(original.id!);
+          }
+        }
+
+        // Atualiza/Insere imagens
+        for (var image in _images) {
+          if (image.id != null) {
+            await imageService.updateImage(image);
+          } else {
+            await imageService.insertImage(image);
+          }
+        }
         Navigator.pop(context, true); // Retorna indicando sucesso
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Propriedade atualizada com sucesso!')),
@@ -191,11 +233,85 @@ class _EditPropertyState extends State<EditProperty> {
                   return null;
                 },
               ),
+              const SizedBox(height: 20),
+              _buildImageSection(),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildImageSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Imagens da Propriedade (Máximo 2):',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        ..._images.asMap().entries.map((entry) {
+          final index = entry.key;
+          final image = entry.value;
+          return _buildImageRow(image, index);
+        }).toList(),
+        if (_images.length < 2) _buildAddImageButton(),
+      ],
+    );
+  }
+
+  Widget _buildImageRow(ImageCustom image, int index) {
+    return Row(
+      key: Key(image.id?.toString() ?? 'new_$index'),
+      children: [
+        Expanded(
+          child: TextFormField(
+            initialValue: image.path,
+            decoration: const InputDecoration(labelText: 'URL da Imagem'),
+            onChanged: (value) => _updateImagePath(index, value),
+            validator: (value) =>
+                value!.isEmpty ? 'Insira uma URL válida' : null,
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.delete, color: Colors.red),
+          onPressed: () => _removeImage(index),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAddImageButton() {
+    return ElevatedButton(
+      onPressed: _addImage,
+      child: const Text('Adicionar Imagem'),
+    );
+  }
+
+  void _addImage() {
+    setState(() {
+      _images.add(ImageCustom(
+        propertyId: _property.id!,
+        path: '',
+      ));
+    });
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      _images.removeAt(index);
+    });
+  }
+
+  void _updateImagePath(int index, String newPath) {
+    setState(() {
+      _images[index] = ImageCustom(
+        id: _images[index].id,
+        propertyId: _images[index].propertyId,
+        path: newPath,
+      );
+    });
   }
 
   @override

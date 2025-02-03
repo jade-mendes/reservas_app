@@ -4,16 +4,37 @@ import 'package:reservas_app/services/db_service.dart';
 class ImageService {
   final DatabaseService _databaseService = DatabaseService();
 
-  // Função para inserir uma imagem na tabela 'images'
   Future<int> insertImage(ImageCustom image) async {
     final db = await _databaseService.getDatabaseInstance();
-    final int id = await db.insert(
+    return await db.insert('images', image.toMap());
+  }
+
+  Future<void> updateImage(ImageCustom image) async {
+    final db = await _databaseService.getDatabaseInstance();
+    await db.update(
       'images',
-      image.toMap(), // Mapeia o objeto ImageCustom para um Map
+      image.toMap(),
+      where: 'id = ?',
+      whereArgs: [image.id],
     );
+  }
 
-    print('Imagem inserida com sucesso com ID $id.');
+  Future<void> deleteImage(int id) async {
+    final db = await _databaseService.getDatabaseInstance();
+    await db.delete(
+      'images',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
 
-    return id;
+  Future<List<ImageCustom>> getImagesByPropertyId(int propertyId) async {
+    final db = await _databaseService.getDatabaseInstance();
+    final List<Map<String, dynamic>> maps = await db.query(
+      'images',
+      where: 'property_id = ?',
+      whereArgs: [propertyId],
+    );
+    return maps.map((map) => ImageCustom.fromMap(map)).toList();
   }
 }

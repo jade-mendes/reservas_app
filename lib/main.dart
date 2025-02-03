@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:reservas_app/ui/screens/anunciar/add_property.dart';
+import 'package:reservas_app/ui/screens/anunciar/anunciar_home.dart';
+import 'package:reservas_app/ui/screens/anunciar/anunciar_login.dart';
+import 'package:reservas_app/ui/screens/anunciar/edit_property.dart';
 import 'package:reservas_app/ui/screens/login.dart';
 import 'package:reservas_app/services/db_service.dart';
 import 'package:reservas_app/ui/screens/sign_up.dart'; // Substitua pelo caminho correto
@@ -11,17 +15,20 @@ Future<void> main() async {
     MaterialApp(
       title: "Reservas App",
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        primaryColor: Colors.indigo,
-        textTheme: TextTheme(
-          bodyMedium: TextStyle(fontSize: 18,color: Colors.black),
-        )
-      ),
+          scaffoldBackgroundColor: Colors.white,
+          primaryColor: Colors.indigo,
+          textTheme: TextTheme(
+            bodyMedium: TextStyle(fontSize: 18, color: Colors.black),
+          )),
       debugShowCheckedModeBanner: false,
       initialRoute: Login.route,
       routes: {
         Login.route: (context) => const Login(),
         SignUp.route: (context) => const SignUp(),
+        AnunciarLogin.route: (context) => const AnunciarLogin(),
+        AnunciarHome.route: (context) => const AnunciarHome(),
+        EditProperty.route: (context) => const EditProperty(),
+        AddProperty.route: (context) => const AddProperty(),
       },
     ),
   );

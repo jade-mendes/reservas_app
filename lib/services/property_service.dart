@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:reservas_app/models/property.dart';
 import 'package:reservas_app/services/db_service.dart';
@@ -89,9 +87,7 @@ class PropertyService {
   }
 
   Future<List<Property>> getAllProperties() async {
-    final db = await _databaseService.getDatabaseInstance();
-    final List<Map<String, dynamic>> maps = await db.query('property');
-    return maps.map((map) => Property.fromMap(map)).toList();
+    return filterProperties({});
   }
 
   /// Filtra propriedades com base em checkinDate, checkoutDate, uf, localidade e bairro.
@@ -108,7 +104,7 @@ class PropertyService {
 
     // Montar a query base e os argumentos dinamicamente
     final StringBuffer queryBuffer = StringBuffer("""
-      SELECT property.* 
+      SELECT DISTINCT property.*, address.* 
       FROM property
       INNER JOIN address ON property.address_id = address.id
       LEFT JOIN booking ON property.id = booking.property_id
@@ -120,26 +116,24 @@ class PropertyService {
     // Adiciona filtros dinamicamente
     if (checkinDate != null && checkoutDate != null) {
       queryBuffer.write("""
-        AND (booking.checkin_date IS NULL OR (booking.checkin_date > ? AND booking.checkin_date > ?) ) OR (booking.checkout_date < ? AND booking.checkout_date < ?)
+        AND (booking.id IS NULL OR (booking.checkin_date > ? OR booking.checkout_date < ?))
       """);
-      args.add("${checkinDate.toLocal()}".split(' ')[0]);
       args.add("${checkoutDate.toLocal()}".split(' ')[0]);
       args.add("${checkinDate.toLocal()}".split(' ')[0]);
-      args.add("${checkoutDate.toLocal()}".split(' ')[0]);
     }
 
     if (uf != null) {
-      queryBuffer.write(" AND address.uf = ?");
+      queryBuffer.write(""" AND address.uf = ?""");
       args.add(uf);
     }
 
     if (localidade != null) {
-      queryBuffer.write(" AND address.localidade = ?");
+      queryBuffer.write(""" AND address.localidade = ?""");
       args.add(localidade);
     }
 
     if (bairro != null) {
-      queryBuffer.write(" AND address.bairro = ?");
+      queryBuffer.write(""" AND address.bairro = ?""");
       args.add(bairro);
     }
 

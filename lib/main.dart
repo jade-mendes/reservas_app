@@ -19,7 +19,7 @@ Future<void> main() async {
         )
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: PropertyListScreen.route,
+      initialRoute: Login.route,
       routes: {
         PropertyListScreen.route: (context) => const PropertyListScreen(),
         Login.route: (context) => const Login(),

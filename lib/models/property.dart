@@ -1,3 +1,5 @@
+import 'package:reservas_app/models/address.dart';
+
 class Property {
   final int? id; // Pode ser nulo para novos registros
   final int userId;
@@ -9,6 +11,7 @@ class Property {
   final double price;
   final int maxGuest;
   final String thumbnail;
+  final Address address;
 
   Property({
     this.id,
@@ -21,6 +24,7 @@ class Property {
     required this.price,
     required this.maxGuest,
     required this.thumbnail,
+    required this.address,
   });
 
   // Converte um Map (como os resultados de uma consulta ao banco) para um objeto Property
@@ -36,6 +40,7 @@ class Property {
       price: map['price'] as double,
       maxGuest: map['max_guest'] as int,
       thumbnail: map['thumbnail'] as String,
+      address: Address.fromMap(map),
     );
   }
 

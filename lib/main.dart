@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:reservas_app/ui/screens/anunciar/add_property.dart';
 import 'package:reservas_app/ui/screens/anunciar/anunciar_home.dart';
-import 'package:reservas_app/ui/screens/anunciar/anunciar_login.dart';
 import 'package:reservas_app/ui/screens/anunciar/edit_property.dart';
 import 'package:reservas_app/ui/screens/login.dart';
 import 'package:reservas_app/services/db_service.dart';
@@ -25,7 +24,6 @@ Future<void> main() async {
       routes: {
         Login.route: (context) => const Login(),
         SignUp.route: (context) => const SignUp(),
-        AnunciarLogin.route: (context) => const AnunciarLogin(),
         AnunciarHome.route: (context) => const AnunciarHome(),
         EditProperty.route: (context) => const EditProperty(),
         AddProperty.route: (context) => const AddProperty(),

@@ -37,7 +37,7 @@ class UserService {
     );
 
     if (result.isEmpty) {
-      return null;
+      throw Exception("Usuário não encontrado.");
     }
 
     final user = User.fromMap(result.first);
@@ -46,7 +46,7 @@ class UserService {
     if (user.password == password) {
       return user;
     } else {
-      return null;
+      throw Exception("Usuário não encontrado.");
     }
   }
 }

@@ -17,6 +17,16 @@ class Address {
     required this.estado,
   });
 
+  factory Address.fromJson(Map<String, dynamic> json) {
+    return Address(
+        cep: json['cep'] ?? '',
+        logradouro: json['logradouro'] ?? '',
+        bairro: json['bairro'] ?? '',
+        localidade: json['localidade'] ?? '',
+        uf: json['uf'] ?? '',
+        estado: json['estado'] ?? '');
+  }
+
   // Converte um Map (como os resultados de uma consulta ao banco) para um objeto Address
   factory Address.fromMap(Map<String, dynamic> map) {
     return Address(
@@ -41,5 +51,26 @@ class Address {
       'uf': uf,
       'estado': estado,
     };
+  }
+
+// Método copyWith para criar uma cópia do objeto alterando alguns campos
+  Address copyWith({
+    int? id,
+    String? cep,
+    String? logradouro,
+    String? bairro,
+    String? localidade,
+    String? uf,
+    String? estado,
+  }) {
+    return Address(
+      id: id ?? this.id,
+      cep: cep ?? this.cep,
+      logradouro: logradouro ?? this.logradouro,
+      bairro: bairro ?? this.bairro,
+      localidade: localidade ?? this.localidade,
+      uf: uf ?? this.uf,
+      estado: estado ?? this.estado,
+    );
   }
 }

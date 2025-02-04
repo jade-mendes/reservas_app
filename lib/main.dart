@@ -4,8 +4,8 @@ import 'package:reservas_app/ui/screens/anunciar/anunciar_home.dart';
 import 'package:reservas_app/ui/screens/anunciar/edit_property.dart';
 import 'package:reservas_app/ui/screens/login.dart';
 import 'package:reservas_app/services/db_service.dart';
-import 'package:reservas_app/ui/screens/sign_up.dart'; // Substitua pelo caminho correto
-import 'package:reservas_app/ui/screens/list_locations/index.dart';
+import 'package:reservas_app/ui/screens/sign_up.dart';
+import 'package:reservas_app/ui/screens/alugar/index.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding

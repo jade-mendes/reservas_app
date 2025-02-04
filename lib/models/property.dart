@@ -11,7 +11,7 @@ class Property {
   final double price;
   final int maxGuest;
   final String thumbnail;
-  final Address address;
+  final Address? address;
 
   Property({
     this.id,
@@ -24,7 +24,7 @@ class Property {
     required this.price,
     required this.maxGuest,
     required this.thumbnail,
-    required this.address,
+    this.address,
   });
 
   // Converte um Map (como os resultados de uma consulta ao banco) para um objeto Property

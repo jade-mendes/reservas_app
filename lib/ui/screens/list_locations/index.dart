@@ -72,16 +72,16 @@ class PropertyListScreenState extends State<PropertyListScreen> {
       if (property.title.toLowerCase().contains(lowerQuery)) {
         score += 5; // Peso 5 para o título
       }
-      if (property.address.uf.toLowerCase().contains(lowerQuery)) {
+      if (property.address!.uf.toLowerCase().contains(lowerQuery)) {
         score += 4; // Peso 4 para o UF
       }
-      if (property.address.localidade.toLowerCase().contains(lowerQuery)) {
+      if (property.address!.localidade.toLowerCase().contains(lowerQuery)) {
         score += 3; // Peso 3 para a cidade
       }
-      if (property.address.bairro.toLowerCase().contains(lowerQuery)) {
+      if (property.address!.bairro.toLowerCase().contains(lowerQuery)) {
         score += 2; // Peso 2 para o bairro
       }
-      if (property.address.logradouro.toLowerCase().contains(lowerQuery)) {
+      if (property.address!.logradouro.toLowerCase().contains(lowerQuery)) {
         score += 1; // Peso 1 para a rua
       }
       return score;
@@ -193,7 +193,7 @@ class PropertyListScreenState extends State<PropertyListScreen> {
               ),
             ),
             subtitle: Text(
-              '${property.address.uf} - ${property.address.localidade}',
+              '${property.address!.uf} - ${property.address!.localidade}',
               style: TextStyle(fontSize: 16),
             ),
             trailing: Text(

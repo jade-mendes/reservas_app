@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reservas_app/models/property.dart';
 import 'package:reservas_app/ui/screens/anunciar/add_property.dart';
 import 'package:reservas_app/ui/screens/anunciar/anunciar_home.dart';
 import 'package:reservas_app/ui/screens/anunciar/edit_property.dart';
@@ -6,6 +7,16 @@ import 'package:reservas_app/ui/screens/login.dart';
 import 'package:reservas_app/services/db_service.dart';
 import 'package:reservas_app/ui/screens/sign_up.dart';
 import 'package:reservas_app/ui/screens/alugar/index.dart';
+
+Property property = Property(
+    userId: 1,
+    addressId: 1,
+    title: "Título da Propriedade",
+    description: "Descrição dessa linda propriedade",
+    number: 50,
+    price: 259,
+    maxGuest: 4,
+    thumbnail: '/image.png');
 
 Future<void> main() async {
   WidgetsFlutterBinding

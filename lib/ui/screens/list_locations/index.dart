@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:reservas_app/models/address.dart';
 import 'package:reservas_app/models/property.dart';
+import 'package:reservas_app/services/address_service.dart';
 import 'package:reservas_app/services/property_service.dart';
 
 class PropertyListScreen extends StatefulWidget {
@@ -31,6 +33,7 @@ class PropertyListScreenState extends State<PropertyListScreen> {
     super.initState();
     // Aqui você pode carregar as locações do banco de dados
     _loadProperties();
+    _loadUFs();
   }
 
   Future<void> _loadProperties() async {
@@ -41,6 +44,16 @@ class PropertyListScreenState extends State<PropertyListScreen> {
       filteredLocacoes = locacoes;
       isLoading = false;
     });
+  }
+
+  Future<void> _loadUFs() async {
+    final addressService = AddressService(); 
+    validUFs = await addressService.getUFs();
+  }
+  Future<void> _loadLocalidades(String uf) async {
+    final addressService = AddressService(); 
+    validlocalidades = await addressService.getLocalidades(uf);
+    print(validlocalidades);
   }
   
   void _searchProperties(String query) {
@@ -97,7 +110,6 @@ class PropertyListScreenState extends State<PropertyListScreen> {
       isLoading = true;
       isFiltered = filters.values.any((value) => !isNullOrEmpty(value));
     });
-
 
     final propertyService = PropertyService(); // Instância de PropertyService
     filteredLocacoes = await propertyService.filterProperties(filters);
@@ -219,7 +231,7 @@ class PropertyListScreenState extends State<PropertyListScreen> {
                         return DropdownButtonFormField<String>(
                           value: value,
                           decoration: InputDecoration(labelText: 'Estado'),
-                          items: ['Todos', 'SP', 'RJ', 'MG'].map((String value) {
+                          items: ['Todos', ...validUFs].map((String value) {
                             return DropdownMenuItem<String>(
                               value: value == 'Todos' ? null : value,
                               child: Text(value),
@@ -227,6 +239,10 @@ class PropertyListScreenState extends State<PropertyListScreen> {
                           }).toList(),
                           onChanged: (value) {
                             ufNotifier.value = value;
+                            localidadeNotifier.value = null;
+                            validlocalidades.clear();
+                            setState((){});
+                            if (value != null) _loadLocalidades(value);
                           },
                         );
                       },
@@ -234,18 +250,20 @@ class PropertyListScreenState extends State<PropertyListScreen> {
                     ValueListenableBuilder<String?>(
                       valueListenable: localidadeNotifier,
                       builder: (context, value, child) {
+                        final isValidValue = validlocalidades.contains(value);
                         return DropdownButtonFormField<String>(
-                          value: value,
+                          value: isValidValue ? value : null,
                           decoration: InputDecoration(labelText: 'Cidade'),
-                          items: ['Todos', 'São Paulo', 'Rio de Janeiro', 'Belo Horizonte'].map((String value) {
+                          items: ['Todos', ...validlocalidades].map((String value) {
                             return DropdownMenuItem<String>(
                               value: value == 'Todos' ? null : value,
                               child: Text(value),
                             );
                           }).toList(),
-                          onChanged: (value) {
+                          onChanged: ufNotifier.value != null ? (value) {
                             localidadeNotifier.value = value;
-                          },
+                            setState((){});
+                          }: null,
                         );
                       },
                     ),
@@ -352,6 +370,7 @@ class PropertyListScreenState extends State<PropertyListScreen> {
               onPressed: () {
                 bairroController.clear();
                 guestsController.clear();
+                validlocalidades.clear();
                 ufNotifier.value = null;
                 localidadeNotifier.value = null;
                 priceRangeNotifier.value = null;

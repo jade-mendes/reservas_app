@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:reservas_app/models/property.dart';
 import 'package:reservas_app/services/db_service.dart';
 
@@ -85,19 +86,25 @@ class PropertyService {
     return maps.map((map) => Property.fromMap(map)).toList();
   }
 
+  Future<List<Property>> getAllProperties() async {
+    return filterProperties({});
+  }
+
   /// Filtra propriedades com base em checkinDate, checkoutDate, uf, localidade e bairro.
-  Future<List<Property>> filterProperties({
-    String? checkinDate,
-    String? checkoutDate,
-    String? uf,
-    String? localidade,
-    String? bairro,
-  }) async {
+  Future<List<Property>> filterProperties(Map<String, dynamic> filters) async {
+    final checkinDate = filters['checkinDate'] as DateTime?;
+    final checkoutDate = filters['checkoutDate'] as DateTime?;
+    final uf = filters['uf'] as String?;
+    final localidade = filters['localidade'] as String?;
+    final bairro = filters['bairro'] as String?;
+    final guests = filters['guests'] as int?;
+    final priceRange = filters['priceRange'] as RangeValues?;
+
     final db = await _databaseService.getDatabaseInstance();
 
     // Montar a query base e os argumentos dinamicamente
     final StringBuffer queryBuffer = StringBuffer("""
-      SELECT property.* 
+      SELECT DISTINCT property.*, address.* 
       FROM property
       INNER JOIN address ON property.address_id = address.id
       LEFT JOIN booking ON property.id = booking.property_id
@@ -109,27 +116,53 @@ class PropertyService {
     // Adiciona filtros dinamicamente
     if (checkinDate != null && checkoutDate != null) {
       queryBuffer.write("""
-        AND (booking.checkin_date IS NULL OR (booking.checkin_date > ? AND booking.checkin_date > ?) ) OR (booking.checkout_date < ? AND booking.checkout_date < ?)
+        AND NOT EXISTS (
+          SELECT 1
+          FROM booking
+          WHERE booking.property_id = property.id
+            AND (
+              (booking.checkin_date <= ? AND booking.checkout_date >= ?) OR
+              (booking.checkin_date <= ? AND booking.checkout_date >= ?) OR
+              (booking.checkin_date >= ? AND booking.checkout_date <= ?)
+            )
+        )
       """);
-      args.add(checkinDate);
-      args.add(checkoutDate);
-      args.add(checkinDate);
-      args.add(checkoutDate);
+      args.addAll([
+        "${checkoutDate.toLocal()}".split(' ')[0],
+        "${checkinDate.toLocal()}".split(' ')[0],
+        "${checkinDate.toLocal()}".split(' ')[0],
+        "${checkoutDate.toLocal()}".split(' ')[0],
+        "${checkinDate.toLocal()}".split(' ')[0],
+        "${checkoutDate.toLocal()}".split(' ')[0],
+      ]);
     }
 
-    if (uf != null) {
-      queryBuffer.write(" AND address.uf = ?");
+    if (uf != null && uf.trim().isNotEmpty) {
+      queryBuffer.write(""" AND address.uf = ? """);
       args.add(uf);
     }
 
-    if (localidade != null) {
-      queryBuffer.write(" AND address.localidade = ?");
+    if (localidade != null && localidade.trim().isNotEmpty) {
+      queryBuffer.write(""" AND address.localidade = ? """);
       args.add(localidade);
     }
 
-    if (bairro != null) {
-      queryBuffer.write(" AND address.bairro = ?");
+    if (bairro != null && bairro.trim().isNotEmpty) {
+      queryBuffer.write(""" AND address.bairro = ? """);
       args.add(bairro);
+    }
+
+    if (guests != null) {
+      queryBuffer.write(""" AND property.max_guest >= ? """);
+      args.add(guests);
+    }
+
+    if (priceRange != null) {
+      queryBuffer.write("""
+        AND (property.price <= ? AND property.price >= ?)
+      """);
+      args.add(priceRange.end);
+      args.add(priceRange.start);
     }
 
     // Executa a consulta com os filtros aplicados

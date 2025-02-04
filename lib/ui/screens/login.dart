@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:reservas_app/models/user.dart';
+import 'package:reservas_app/ui/screens/anunciar/anunciar_home.dart';
+import 'package:reservas_app/ui/screens/list_locations/index.dart';
 import 'package:reservas_app/ui/screens/sign_up.dart';
 import 'package:reservas_app/services/user_service.dart';
 
@@ -75,7 +77,14 @@ class _LoginState extends State<Login> {
                 if (userType == "anfitrião" && mounted) {
                   Navigator.pushReplacementNamed(
                     context,
-                    '/anunciar-home',
+                    AnunciarHome.route,
+                    arguments: user,
+                  );
+                }
+                if (userType == "hóspede" && mounted) {
+                  Navigator.pushReplacementNamed(
+                    context,
+                    PropertyListScreen.route,
                     arguments: user,
                   );
                 }

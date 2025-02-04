@@ -75,12 +75,12 @@ class PropertyService {
   Future<List<Property>> getPropertiesByUserId(int userId) async {
     final db = await _databaseService.getDatabaseInstance();
 
-    // Query para buscar as propriedades associadas ao userId.
-    final List<Map<String, dynamic>> maps = await db.query(
-      'property', // Nome da tabela
-      where: 'user_id = ?', // Condição para filtrar pelo userId
-      whereArgs: [userId], // Argumentos da condição
-    );
+    final List<Map<String, dynamic>> maps = await db.rawQuery("""
+      SELECT DISTINCT property.*, address.* 
+      FROM property
+      INNER JOIN address ON property.address_id = address.id
+      WHERE property.user_id = ?
+    """, [userId]);
 
     // Converte a lista de mapas para uma lista de objetos Property.
     return maps.map((map) => Property.fromMap(map)).toList();

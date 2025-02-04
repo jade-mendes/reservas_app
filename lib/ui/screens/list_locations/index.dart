@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:reservas_app/models/address.dart';
 import 'package:reservas_app/models/property.dart';
+import 'package:reservas_app/models/user.dart';
 import 'package:reservas_app/services/address_service.dart';
 import 'package:reservas_app/services/property_service.dart';
+import 'package:reservas_app/ui/screens/single_location/index.dart';
 
 class PropertyListScreen extends StatefulWidget {
   const PropertyListScreen({super.key});
@@ -13,6 +15,7 @@ class PropertyListScreen extends StatefulWidget {
 }
 
 class PropertyListScreenState extends State<PropertyListScreen> {
+  late User? _currentUser;
   List<Property> locacoes = []; // Lista de locações (você vai popular isso com dados do banco)
   List<Property> filteredLocacoes = []; // Lista filtrada para exibição
   List<String> validUFs = [];
@@ -32,14 +35,21 @@ class PropertyListScreenState extends State<PropertyListScreen> {
   void initState(){
     super.initState();
     // Aqui você pode carregar as locações do banco de dados
-    _loadProperties();
     _loadUFs();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Movemos para didChangeDependencies
+    _currentUser = ModalRoute.of(context)!.settings.arguments as User?;
+    _loadProperties();
   }
 
   Future<void> _loadProperties() async {
     setState(() {isLoading = true;});
     final propertyService = PropertyService(); // Instância de PropertyService
-    locacoes = await propertyService.getAllProperties(); // Chamada do método de instância
+    locacoes = await propertyService.filterProperties({'user': _currentUser?.id}); // Chamada do método de instância
     setState(() {
       filteredLocacoes = locacoes;
       isLoading = false;
@@ -127,13 +137,22 @@ class PropertyListScreenState extends State<PropertyListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          }, 
+          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20)
+        ),
         title: TextField(
           controller: searchController,
           decoration: InputDecoration(
             hintText: 'Pesquisar...',
             border: InputBorder.none,
             suffixIcon: searchController.text != "" ? IconButton(
-              onPressed: searchController.clear,
+              onPressed: (){
+                searchController.clear();
+                _searchProperties("");
+              },
               icon: Icon(Icons.clear),
             ) : Text(""),
           ),
@@ -201,8 +220,15 @@ class PropertyListScreenState extends State<PropertyListScreen> {
               style: const TextStyle(fontSize: 14)
             ),
             onTap: () {
-              // Navegar para a página da locação
-              // Navigator.push(...);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SinglePropertyScreen(
+                    property: property,
+                    userId: _currentUser!.id,
+                  ),
+                ),
+              );
             },
           );
         },
@@ -399,6 +425,7 @@ class PropertyListScreenState extends State<PropertyListScreen> {
                   'bairro': bairroController.text,
                   'guests': int.tryParse(guestsController.text),
                   'priceRange': priceRangeNotifier.value,
+                  'user': _currentUser?.id
                 };
 
                 _applyFilters(filters);

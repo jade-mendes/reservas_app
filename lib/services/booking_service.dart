@@ -30,4 +30,17 @@ class BookingService {
     // Converte a lista de mapas para uma lista de objetos Booking.
     return maps.map((map) => Booking.fromMap(map)).toList();
   }
+
+  Future<List<Booking>> getBookingsByPropertyId(int propertyId) async {
+    final db = await _databaseService.getDatabaseInstance();
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      'booking',
+      where: 'property_id = ?',
+      whereArgs: [propertyId],
+    );
+
+    // Converte a lista de mapas para uma lista de objetos Booking.
+    return maps.map((map) => Booking.fromMap(map)).toList();
+  }
 }

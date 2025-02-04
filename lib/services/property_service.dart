@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:reservas_app/models/property.dart';
+import 'package:reservas_app/models/user.dart';
 import 'package:reservas_app/services/db_service.dart';
 
 class PropertyService {
@@ -99,6 +100,7 @@ class PropertyService {
     final bairro = filters['bairro'] as String?;
     final guests = filters['guests'] as int?;
     final priceRange = filters['priceRange'] as RangeValues?;
+    final user = filters['user'] as int?;
 
     final db = await _databaseService.getDatabaseInstance();
 
@@ -163,6 +165,13 @@ class PropertyService {
       """);
       args.add(priceRange.end);
       args.add(priceRange.start);
+    }
+
+    if (user != null) {
+      queryBuffer.write("""
+        AND (property.user_id <> ?)
+      """);
+      args.add(user);
     }
 
     // Executa a consulta com os filtros aplicados

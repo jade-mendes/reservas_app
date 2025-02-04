@@ -116,31 +116,44 @@ class PropertyService {
     // Adiciona filtros dinamicamente
     if (checkinDate != null && checkoutDate != null) {
       queryBuffer.write("""
-        AND (booking.id IS NULL OR (booking.checkin_date > ? OR booking.checkout_date < ?))
+        AND NOT EXISTS (
+          SELECT 1
+          FROM booking
+          WHERE booking.property_id = property.id
+            AND (
+              (booking.checkin_date <= ? AND booking.checkout_date >= ?) OR
+              (booking.checkin_date <= ? AND booking.checkout_date >= ?) OR
+              (booking.checkin_date >= ? AND booking.checkout_date <= ?)
+            )
+        )
       """);
-      args.add("${checkoutDate.toLocal()}".split(' ')[0]);
-      args.add("${checkinDate.toLocal()}".split(' ')[0]);
+      args.addAll([
+        "${checkoutDate.toLocal()}".split(' ')[0],
+        "${checkinDate.toLocal()}".split(' ')[0],
+        "${checkinDate.toLocal()}".split(' ')[0],
+        "${checkoutDate.toLocal()}".split(' ')[0],
+        "${checkinDate.toLocal()}".split(' ')[0],
+        "${checkoutDate.toLocal()}".split(' ')[0],
+      ]);
     }
 
     if (uf != null && uf.trim().isNotEmpty) {
-      queryBuffer.write(""" AND address.uf = ?""");
+      queryBuffer.write(""" AND address.uf = ? """);
       args.add(uf);
     }
 
     if (localidade != null && localidade.trim().isNotEmpty) {
-      queryBuffer.write(""" AND address.localidade = ?""");
+      queryBuffer.write(""" AND address.localidade = ? """);
       args.add(localidade);
     }
 
     if (bairro != null && bairro.trim().isNotEmpty) {
-      queryBuffer.write(""" AND address.bairro = ?""");
+      queryBuffer.write(""" AND address.bairro = ? """);
       args.add(bairro);
     }
 
     if (guests != null) {
-      queryBuffer.write("""
-        AND property.max_guest >= ?
-      """);
+      queryBuffer.write(""" AND property.max_guest >= ? """);
       args.add(guests);
     }
 

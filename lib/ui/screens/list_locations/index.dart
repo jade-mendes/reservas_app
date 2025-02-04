@@ -13,15 +13,18 @@ class PropertyListScreen extends StatefulWidget {
 class PropertyListScreenState extends State<PropertyListScreen> {
   List<Property> locacoes = []; // Lista de locações (você vai popular isso com dados do banco)
   List<Property> filteredLocacoes = []; // Lista filtrada para exibição
+  List<String> validUFs = [];
+  List<String> validlocalidades = [];
   TextEditingController searchController = TextEditingController();
   DateTime? checkinDate;
   DateTime? checkoutDate;
-  String? uf;
-  String? localidade;
-  String? bairro;
-  int? guests;
-  RangeValues? priceRange;
+  final TextEditingController bairroController = TextEditingController();
+  final TextEditingController guestsController = TextEditingController();
+  final ValueNotifier<String?> ufNotifier = ValueNotifier<String?>(null);
+  final ValueNotifier<String?> localidadeNotifier = ValueNotifier<String?>(null);
+  final ValueNotifier<RangeValues?> priceRangeNotifier = ValueNotifier<RangeValues?>(null);
   bool isLoading = false;
+  bool isFiltered = false;
 
   @override
   void initState(){
@@ -90,11 +93,22 @@ class PropertyListScreenState extends State<PropertyListScreen> {
   }
   
   void _applyFilters(Map<String, dynamic> filters) async {
-    setState(() {isLoading = true;});
+    setState(() {
+      isLoading = true;
+      isFiltered = filters.values.any((value) => !isNullOrEmpty(value));
+    });
+
+
     final propertyService = PropertyService(); // Instância de PropertyService
     filteredLocacoes = await propertyService.filterProperties(filters);
     locacoes = filteredLocacoes;
     setState(() {isLoading = false;});
+  }
+
+  bool isNullOrEmpty(dynamic value) {
+    if (value == null) return true;
+    if (value is String) return value.trim().isEmpty;
+    return false;
   }
 
   @override
@@ -114,12 +128,33 @@ class PropertyListScreenState extends State<PropertyListScreen> {
           onChanged: _searchProperties,
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.filter_list),
-            onPressed: () {
-              // Abrir caixa de diálogo de filtros
-              _showFilterDialog(context);
-            },
+          Stack(
+            children: [
+              IconButton(
+                icon: Icon(
+                  Icons.filter_list,
+                ),
+                onPressed: () {
+                  _showFilterDialog(context);
+                },
+              ),
+              if (isFiltered)
+                Positioned(
+                  left: 5,
+                  bottom: 5,
+                  child: Container(
+                    // padding: EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.deepPurpleAccent,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: 12,
+                      minHeight: 12,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ],
       ),
@@ -172,68 +207,81 @@ class PropertyListScreenState extends State<PropertyListScreen> {
       builder: (context) {
         return AlertDialog(
           title: Text('Filtrar Locações'),
-          insetPadding: EdgeInsets.all(50),
+          insetPadding: EdgeInsets.all(0),
           content: SingleChildScrollView(
             child: StatefulBuilder(
               builder: (context, setState) {
                 return Column(
                   children: [
-                    DropdownButtonFormField<String>(
-                      value: uf,
-                      decoration: InputDecoration(labelText: 'Estado'),
-                      items: ['Todos','SP', 'RJ', 'MG'].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value == 'Todos' ? null : value,
-                          child: Text(value),
+                    ValueListenableBuilder<String?>(
+                      valueListenable: ufNotifier,
+                      builder: (context, value, child) {
+                        return DropdownButtonFormField<String>(
+                          value: value,
+                          decoration: InputDecoration(labelText: 'Estado'),
+                          items: ['Todos', 'SP', 'RJ', 'MG'].map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value == 'Todos' ? null : value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            ufNotifier.value = value;
+                          },
                         );
-                      }).toList(),
-                      onChanged: (value) {
-                        uf = value;
                       },
                     ),
-                    DropdownButtonFormField<String>(
-                      value: localidade,
-                      decoration: InputDecoration(labelText: 'Cidade'),
-                      items: ['Todos','São Paulo', 'Rio de Janeiro', 'Belo Horizonte'].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value == 'Todos' ? null : value,
-                          child: Text(value),
+                    ValueListenableBuilder<String?>(
+                      valueListenable: localidadeNotifier,
+                      builder: (context, value, child) {
+                        return DropdownButtonFormField<String>(
+                          value: value,
+                          decoration: InputDecoration(labelText: 'Cidade'),
+                          items: ['Todos', 'São Paulo', 'Rio de Janeiro', 'Belo Horizonte'].map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value == 'Todos' ? null : value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            localidadeNotifier.value = value;
+                          },
                         );
-                      }).toList(),
-                      onChanged: (value) {
-                        localidade = value;
                       },
                     ),
                     TextField(
+                      controller: bairroController,
                       decoration: InputDecoration(labelText: 'Bairro'),
-                      onChanged: (value) {
-                        bairro = value;
-                      },
                     ),
                     TextField(
+                      controller: guestsController,
                       keyboardType: TextInputType.number,
                       inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.digitsOnly
                       ],
                       decoration: InputDecoration(labelText: 'Quantidade de Pessoas'),
-                      onChanged: (value) {
-                        guests = int.tryParse(value);
-                      },
                     ),
                     ListTile(
                       title: Text('Data de Entrada'),
-                      contentPadding: EdgeInsets.only(left: 0.0, right: 0.0),
+                      contentPadding: EdgeInsets.only(left: 5.0, right: 5.0),
                       subtitle: Text(checkinDate != null ? 
                         "${checkinDate!.day.toString().padLeft(2, '0')}/${checkinDate!.month.toString().padLeft(2, '0')}/${checkinDate!.year}" 
                         : 'Selecione a data',
                         style: TextStyle(fontSize: 16),
                       ),
+                      trailing: checkinDate != null ? 
+                        IconButton(
+                          onPressed: () => {
+                            setState(() {checkinDate = null;}),
+                          }, 
+                          icon: Icon(Icons.delete_forever) 
+                        ) : Text(''),
                       onTap: () async {
                         final selectedDate = await showDatePicker(
                           context: context,
                           initialDate: checkinDate ?? DateTime.now(),
                           firstDate: DateTime.now(),
-                          lastDate: checkoutDate ?? DateTime(2100),
+                          lastDate: checkoutDate ?? DateTime(DateTime.now().year + 5),
                         );
                         if (selectedDate != null) {
                           setState(() {
@@ -244,18 +292,25 @@ class PropertyListScreenState extends State<PropertyListScreen> {
                     ),
                     ListTile(
                       title: Text('Data de Saída'),
-                      contentPadding: EdgeInsets.only(left: 0.0, right: 0.0),
+                      contentPadding: EdgeInsets.only(left: 5.0, right: 5.0),
                       subtitle: Text(checkoutDate != null ? 
                         "${checkoutDate!.day.toString().padLeft(2, '0')}/${checkoutDate!.month.toString().padLeft(2, '0')}/${checkoutDate!.year}" 
                         : 'Selecione a data',
                         style: TextStyle(fontSize: 16),
                       ),
+                      trailing: checkoutDate != null ? 
+                        IconButton(
+                          onPressed: () => {
+                            setState(() {checkoutDate = null;}),
+                          }, 
+                          icon: Icon(Icons.delete_forever) 
+                        ) : Text(''),
                       onTap: () async {
                         final selectedDate = await showDatePicker(
                           context: context,
                           initialDate: checkoutDate ?? checkinDate ?? DateTime.now(),
                           firstDate: checkinDate ?? DateTime.now(),
-                          lastDate: DateTime(2100),
+                          lastDate: DateTime(DateTime.now().year + 5),
                         );
                         if (selectedDate != null) {
                           setState(() {
@@ -263,26 +318,30 @@ class PropertyListScreenState extends State<PropertyListScreen> {
                           });
                         }
                       },
+                    ),   
+                    ValueListenableBuilder<RangeValues?>(
+                      valueListenable: priceRangeNotifier,
+                      builder: (context, value, child) {
+                        return ListTile(
+                          title: Text("Faixa de preço"),
+                          contentPadding: EdgeInsets.only(left: 0.0, right: 0.0),
+                          subtitle: RangeSlider(
+                            values: value ?? RangeValues(0, 1000),
+                            min: 0,
+                            max: 1000,
+                            divisions: 20,
+                            labels: RangeLabels(
+                              'R\$ ${value?.start.round() ?? 0}',
+                              'R\$ ${value?.end.round() ?? 1000}',
+                            ),
+                            onChanged: (values) {
+                              priceRangeNotifier.value = values;
+                              if (values.start == 0 && values.end == 1000) priceRangeNotifier.value = null;
+                            },
+                          ),
+                        );
+                      },
                     ),
-                    ListTile(
-                      title: Text("Faixa de preço"),
-                      contentPadding: EdgeInsets.only(left: 0.0, right: 0.0),
-                      subtitle: RangeSlider(
-                        values: priceRange ?? RangeValues(0, 1000),
-                        min: 0,
-                        max: 1000,
-                        divisions: 20,
-                        labels: RangeLabels(
-                          'R\$ ${priceRange?.start.round() ?? 0}',
-                          'R\$ ${priceRange?.end.round() ?? 1000}',
-                        ),
-                        onChanged: (values) {
-                          setState(() {
-                            priceRange = values;
-                          });
-                        },
-                      ),
-                    )
                   ],
                 );
               }
@@ -291,13 +350,14 @@ class PropertyListScreenState extends State<PropertyListScreen> {
           actions: [
             TextButton(
               onPressed: () {
+                bairroController.clear();
+                guestsController.clear();
+                ufNotifier.value = null;
+                localidadeNotifier.value = null;
+                priceRangeNotifier.value = null;
                 checkinDate = null;
                 checkoutDate = null;
-                uf = null;
-                localidade = null;
-                bairro = null;
-                guests = null;
-                priceRange = null;
+                isFiltered = false;
                 _applyFilters({});
                 setState(() {});
                 Navigator.of(context).pop();
@@ -312,16 +372,16 @@ class PropertyListScreenState extends State<PropertyListScreen> {
             ),
             TextButton(
               onPressed: () {
-                // Aplicar filtros
                 final filters = {
                   'checkinDate': checkinDate,
                   'checkoutDate': checkoutDate,
-                  'uf': uf,
-                  'localidade': localidade,
-                  'bairro': bairro,
-                  'guests': guests,
-                  'priceRange': priceRange,
+                  'uf': ufNotifier.value,
+                  'localidade': localidadeNotifier.value,
+                  'bairro': bairroController.text,
+                  'guests': int.tryParse(guestsController.text),
+                  'priceRange': priceRangeNotifier.value,
                 };
+
                 _applyFilters(filters);
                 Navigator.of(context).pop();
               },

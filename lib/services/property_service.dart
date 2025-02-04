@@ -122,17 +122,17 @@ class PropertyService {
       args.add("${checkinDate.toLocal()}".split(' ')[0]);
     }
 
-    if (uf != null) {
+    if (uf != null && uf.trim().isNotEmpty) {
       queryBuffer.write(""" AND address.uf = ?""");
       args.add(uf);
     }
 
-    if (localidade != null) {
+    if (localidade != null && localidade.trim().isNotEmpty) {
       queryBuffer.write(""" AND address.localidade = ?""");
       args.add(localidade);
     }
 
-    if (bairro != null) {
+    if (bairro != null && bairro.trim().isNotEmpty) {
       queryBuffer.write(""" AND address.bairro = ?""");
       args.add(bairro);
     }

@@ -104,6 +104,8 @@ class BookingCard extends StatelessWidget {
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.broken_image),
             ),
           ),
           Padding(

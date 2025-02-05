@@ -52,7 +52,7 @@ class PropertyListScreenState extends State<PropertyListScreen> {
   }
 
   Future<void> _loadProperties() async {
-    if (_currentUser == null) return;
+    if (_currentUser?.id == null) return;
     setState(() {
       isLoading = true;
     });
@@ -134,9 +134,8 @@ class PropertyListScreenState extends State<PropertyListScreen> {
       isLoading = true;
       isFiltered = filters.values.any((value) => !isNullOrEmpty(value));
     });
-
     final propertyService = PropertyService(); // Instância de PropertyService
-    filteredLocacoes = await propertyService.filterProperties(filters);
+    filteredLocacoes = await propertyService.filterProperties({'user': _currentUser?.id, ...filters});
     locacoes = filteredLocacoes;
     setState(() {
       isLoading = false;

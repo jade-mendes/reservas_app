@@ -6,7 +6,7 @@ import 'package:reservas_app/ui/screens/anunciar/edit_property.dart';
 import 'package:reservas_app/ui/screens/login.dart';
 import 'package:reservas_app/services/db_service.dart';
 import 'package:reservas_app/ui/screens/sign_up.dart';
-import 'package:reservas_app/ui/screens/alugar/index.dart';
+import 'package:reservas_app/ui/screens/list_locations/index.dart';
 
 Property property = Property(
     userId: 1,

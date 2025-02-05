@@ -16,8 +16,7 @@ class PropertyListScreen extends StatefulWidget {
 
 class PropertyListScreenState extends State<PropertyListScreen> {
   late User? _currentUser;
-  List<Property> locacoes =
-      []; // Lista de locações (você vai popular isso com dados do banco)
+  List<Property> locacoes = []; 
   List<Property> filteredLocacoes = []; // Lista filtrada para exibição
   List<String> validUFs = [];
   List<String> validlocalidades = [];
@@ -37,19 +36,23 @@ class PropertyListScreenState extends State<PropertyListScreen> {
   @override
   void initState() {
     super.initState();
-    // Aqui você pode carregar as locações do banco de dados
+    _currentUser = null;
+    _loadProperties();
     _loadUFs();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Movemos para didChangeDependencies
-    _currentUser = ModalRoute.of(context)!.settings.arguments as User?;
-    _loadProperties();
+    final user = ModalRoute.of(context)!.settings.arguments as User?;
+    if (user != null && _currentUser == null) {
+      _currentUser = user;
+      _loadProperties();
+    }
   }
 
   Future<void> _loadProperties() async {
+    if (_currentUser == null) return;
     setState(() {
       isLoading = true;
     });
